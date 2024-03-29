@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Dashboard
+        </title>
+        <style>
+            button{
+                cursor: pointer;
+            }
+            #amount{
+                height: 40px;
+                width: 80px;
+                text-align: center;
+                background-color: black;
+                color: white;
+                border-radius: 20px;
+                margin: 0 2px;
+            }
+            containerforpin{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                height: 400px;
+                width: 400px;
+                margin-top : -200px;
+                margin-left: -200px;
+                border:2px solid black ;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            input {
+                height: 20px;
+                width: 20px;
+                text-align: center;
+                background-color: black;
+                color: white;
+                margin: 0 2px;
+            }
+            #cont1{
+                background-color: aqua; border: 0;display: flex; justify-content: center;
+            }
+            #stalls{
+                background-color:azure;
+                border: 2px solid black;
+                border-radius: 20px;
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%,0);
+            }
+            #pintemp{
+                display: none;
+            }
+            #foodstall{
+                margin: 10px;
+                background-color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid black;
+                border-radius: 10%;
+                height: 120px;
+                width: 120px;
+            }
+            #hist{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+    </head>
+    <body >
+        <input id="hid" type="text" style="display: none;", value="stall1"/>
+        <container id="cont1">
+            <h1>Welcome <%= username%> </h1>
+            <h1>You have RS. <amt id="amt"><%= amt %></amt> left</h1>
+        </container>
+        <br>
+        <container id="bar" style=" margin: 0;height: 20px;width: 120px;">
+            <button onclick="document.getElementById('hist').style.display='none';
+            document.getElementById('stalls').style.display='block';" style="color: white;background-color: black; border: 0;">stalls</button>
+            <button onclick="document.getElementById('hist').style.display='flex';
+            document.getElementById('hist').style.alignItems='center';
+            document.getElementById('hist').style.justifyContent='center'
+            document.getElementById('stalls').style.display='none';" style="color: white;background-color: black; border: 0;">Transaction History</button>
+            <button style="color: white;background-color: black; border: 0;">Profile</button>
+        </container>
+        <br>
+        <br>
+        <container id="hist" style="display: none;">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Stall</th>
+                        <th>Amount</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(const x of hist){ %>
+                        <tr>
+                            <td><%= x.stall %></td>
+                            <td><%= x.amount %></td>
+                            <td><%= x.ts %></td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </container>
+        <container id="stalls">
+            <% for(const x of stalls){ %>
+                <button style="margin: 30px;" onclick="f('<%= x %>')">
+                    <container id="foodstall">
+                        <%= x %>
+                    </container>
+                </button>
+            <% } %>
+        </container>
+        <pintemp id="pintemp">
+            <containerforpin>
+                <div id="text">
+                    PAYING
+                </div>
+                <input type="text", id="amount"/>
+                <div id="text">
+                    TO <sp id="hiddenval">gfdhg</sp>
+                </div>
+                <div id="text">
+                    ENTER THE PIN:
+                </div>
+                <br>
+                <div id="pin">
+                    <input name="p1" id="id1" maxlength="1" oninput="movetonext()"/>
+                    <input name="p2" maxlength="1" oninput="movetonext()"/>
+                    <input name="p3" maxlength="1" oninput="movetonext()"/>
+                    <input name="p4" maxlength="1" />
+                </div>
+                <br>
+                <button onclick="subpin('<%= username%>')">SUBMIT</button>
+            </containerforpin>
+        </pintemp>
+    </body>
+    <script>
+        function f(x)
+        {
+            document.getElementById('bar').style.display='block';
+            document.getElementById('hiddenval').innerText=x;
+            document.getElementById('cont1').style.display='none';
+            document.getElementById('stalls').style.display='none';
+            document.getElementById('pintemp').style.display='block';
+        }
+        function movetonext()
+        {
+            let first=document.getElementById('id1');
+            while(first.value.length>0)
+            {
+                first=first.nextElementSibling;
+            }
+            if(first)
+            first.focus();
+        }
+        function subpin(username)
+        {
+            var p1=parseInt(document.getElementsByName('p1')[0].value);
+            var p2=parseInt(document.getElementsByName('p2')[0].value);
+            var p3=parseInt(document.getElementsByName('p3')[0].value);
+            var p4=parseInt(document.getElementsByName('p4')[0].value);
+            var amt = parseInt(document.getElementById('amount').value);
+            var stl = document.getElementById('hiddenval').innerText;
+            var x = ''+p1+p2+p3+p4;
+            fetch('/subpin',{
+                method: 'POST',
+                headers: {
+                    'Content-Type' : 'application/json',
+                },
+                
+                body: JSON.stringify({username,x,amt,stl}),
+            })
+            .then(response=> response.text())
+            .then(data => {
+                alert(data);
+                console.log(hist);
+                if(data == 'Payment Successful')
+                {
+                    document.getElementById('bar').style.display='block';
+                    document.getElementById('amt').innerText=parseInt(document.getElementById('amt').innerText)-amt;
+                    document.getElementById('cont1').style.display='block';
+                    document.getElementById('stalls').style.display='block';
+                    document.getElementById('pintemp').style.display='none';
+                    var inputs = document.getElementsByTagName('input');
+                    for (var i = 0; i < inputs.length; i++) {
+                        inputs[i].value = '';
+}
+
+                }
+            });
+        }
+    </script>
+</html>

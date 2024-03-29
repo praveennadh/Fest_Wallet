@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>sample pin</title>
+        <style>
+            #amount{
+                height: 40px;
+                width: 80px;
+                text-align: center;
+                background-color: black;
+                color: white;
+                border-radius: 20px;
+                margin: 0 2px;
+            }
+            container{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                height: 400px;
+                width: 400px;
+                margin-top : -200px;
+                margin-left: -200px;
+                border:2px solid black ;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            input {
+                height: 20px;
+                width: 20px;
+                text-align: center;
+                background-color: black;
+                color: white;
+                margin: 0 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <container>
+            <div id="text">
+                PAYING
+            </div>
+            <input type="text", id="amount"/>
+            <div id="text">
+                TO <%= stal %>
+            </div>
+            <div id="text">
+                ENTER THE PIN:
+            </div>
+            <br>
+            <div id="pin">
+                <input name="p1" id="id1" maxlength="1" oninput="movetonext()"/>
+                <input name="p2" maxlength="1" oninput="movetonext()"/>
+                <input name="p3" maxlength="1" oninput="movetonext()"/>
+                <input name="p4" maxlength="1" />
+            </div>
+            <br>
+            <button onclick="subpin()">SUBMIT</button>
+        </container>
+    </body>
+    <script>
+        function movetonext()
+        {
+            let first=document.getElementById('id1');
+            while(first.value.length>0)
+            {
+                first=first.nextElementSibling;
+            }
+            if(first)
+            first.focus();
+        }
+    </script>
+</html>
